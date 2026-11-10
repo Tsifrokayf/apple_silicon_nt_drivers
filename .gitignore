@@ -1,0 +1,20 @@
+# build output
+build/out/
+*.sys
+*.obj
+*.pdb
+*.lib
+*.exp
+*.cat
+*.aml
+
+# signing material
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+*.cer
+
+# python
+__pycache__/

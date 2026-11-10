@@ -1,0 +1,69 @@
+;
+; AppleDockChannelHid.inf - MacBook Air M2 (J413) internal keyboard/trackpad
+; over the MTP DockChannel, exposed through the Virtual HID Framework.
+;
+; UNTESTED. This INF has never been installed, run through InfVerif, or
+; turned into a catalog (no inf2cat on Linux). ARM64 only. For test-signed
+; use with TESTSIGNING on; see README.md.
+;
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = %ProviderName%
+CatalogFile = AppleDockChannelHid.cat
+DriverVer   = 11/10/2026,0.1.0.0
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%
+
+[SourceDisksFiles]
+AppleDockChannelHid.sys = 1
+
+[Manufacturer]
+%ManufacturerName% = Standard, NTarm64
+
+; ACPI\APPL0D01 is this project's own ID (APPL prefix as used elsewhere in
+; the NTASP firmware), not an ID assigned by Apple.
+[Standard.NTarm64]
+%DeviceDesc% = DchidInstall, ACPI\APPL0D01
+
+[DchidInstall.NT]
+CopyFiles = DchidCopyFiles
+
+[DchidCopyFiles]
+AppleDockChannelHid.sys
+
+; VHF works as a lower filter below the HID source driver.
+[DchidInstall.NT.HW]
+AddReg = DchidInstall.NT.HW.AddReg
+
+[DchidInstall.NT.HW.AddReg]
+HKR,,"LowerFilters",0x00010000,"vhf"
+
+[DchidInstall.NT.Services]
+AddService = AppleDockChannelHid, 0x00000002, DchidService
+
+[DchidService]
+DisplayName   = %ServiceName%
+ServiceType   = 1               ; SERVICE_KERNEL_DRIVER
+StartType     = 3               ; SERVICE_DEMAND_START (PnP)
+ErrorControl  = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary = %13%\AppleDockChannelHid.sys
+
+[DchidInstall.NT.Wdf]
+KmdfService = AppleDockChannelHid, DchidWdf
+
+[DchidWdf]
+KmdfLibraryVersion = 1.33
+
+[Strings]
+ProviderName     = "NTASP"
+ManufacturerName = "NTASP"
+DiskName         = "AppleDockChannelHid Installation Disk"
+DeviceDesc       = "Apple DockChannel HID (internal keyboard and trackpad, UNTESTED)"
+ServiceName      = "Apple DockChannel HID"
